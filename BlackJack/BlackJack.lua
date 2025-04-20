@@ -110,11 +110,11 @@ local new_hands = {
     {name = "Blackjack Flush",   mult = 7,   chips = 80,  level_mult = 3, level_chips = 35, order = 1, example = {{'H_3', true},{'H_4', true},{'H_5', true},{'H_2', true},{'H_7', true}}, desc = {"5 cards whose ranks sum to 21.", "all cards sharing the same suit"}, above_hand = "Four of a Kind", key = "jack_flush", visible = true},
     {name = "Blackjack Three",           mult = 4,   chips = 36,  level_mult = 2, order = 1, level_chips = 20, example = {{'S_7', true},{'H_7', true},{'D_7', true}}, desc = {"3 cards of the same rank", "which sum to 21."}, above_hand = "Flush", key = "jack_three", visible = true},
     {name = "Natural",        mult = 1,   chips = 7,  level_mult = 1, level_chips = 14, order = 1, example = {{'H_A', true},{'S_J', true}}, desc = {"An Ace with a 10 value card."}, above_hand = "High Card", key = "natural", visible = true},
-    {name = "Blackjack",        mult = 3,   chips = 35,  level_mult = 2, level_chips = 25, order = 1, example = {{'S_3', true},{'C_4', true},{'S_5', true},{'D_2', true},{'H_7', true}}, desc = {"3 or more cards whose ranks", "sum to 21."}, above_hand = "Three of a Kind", key = "jack", visible = true}
+    {name = "Blackjack",        mult = 3,   chips = 25,  level_mult = 2, level_chips = 25, order = 1, example = {{'S_3', true},{'C_4', true},{'S_5', true},{'D_2', true},{'H_7', true}}, desc = {"3 or more cards whose ranks", "sum to 21."}, above_hand = "Three of a Kind", key = "jack", visible = true}
 }
 
 new_hands[1].evaluate = function(parts, hand)
-    if next(get_blackjack(hand)) and next(parts._3) and next(parts._2) and next(parts._flush) then
+    if next(get_blackjack(hand)) and  (#parts._3 >= 1 and #parts._2 >= 2) and next(parts._flush) and #hand >= 5 then
         return {SMODS.merge_lists(parts._3, parts._2)}
     else
         return {}
@@ -122,7 +122,11 @@ new_hands[1].evaluate = function(parts, hand)
 end
 
 new_hands[2].evaluate = function(parts, hand)
-    if next(get_blackjack(hand)) and next(parts._3) and next(parts._2) then
+    
+    if next(get_blackjack(hand))  then
+        if #parts._3 < 1 or #parts._2 < 3 then return {} end
+        --return parts._all_pairs
+        
         return {SMODS.merge_lists(parts._3, parts._2)}
     else
         return {}
@@ -441,7 +445,7 @@ SMODS.Joker {
     pos = {x = 0, y = 0},
     cost = 4,
     config = {extra = {xmult = 3}},
-    unlock_condition = {type = 'win_no_hand', extra = 'Blackjack'},
+    unlock_condition = {type = 'win_no_hand', extra = 'bj_jack'},
     unlocked = false,
     calculate = function(self, card, context)
         if context.joker_main then
